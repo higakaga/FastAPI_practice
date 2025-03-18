@@ -1,7 +1,7 @@
 from enum import Enum
-from typing import Union
+from typing import Union, List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from pydantic import BaseModel
 
 class ModelName(str. Enum):
@@ -27,6 +27,38 @@ async def root():
 async def read_item(skip: int = 0, limit: int = 10):
     return fake_items_db[skip : skip + limit]
 
+async def read_items(
+        q: Union[str, None] = Query(
+            default=None, min_length=3, max_length=50, pattern="^fixedquery$",
+            title="Query string",
+            description="Query string for the items to search in the database that have a good match",
+            alias="item-query",
+            deprecated=True,
+            ),
+        ):
+    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+    if q:
+        results.update({"q": q})
+    return results
+'''
+async def read_items(q: str = Query(min_length=3)):
+    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+    if q:
+        results.update({"q": q})
+    return results
+
+async def read_items(q: Union[List[str], None] = Query(default=None)):
+    query_items = {"q": q}
+    return query_items
+
+async def read_items(q: List[str] = Query(default=["foo", "bar"])):
+    query_items = {"q": q}
+    return query_items
+
+async def read_items(q: list = Query(default=[])):
+    query_items = {"q": q}
+    return query_items
+'''
 @app.get("/items/{item_id}")
 # async def read_item(item_id: str, q: Union[str, None] = None):
 #     if q:
