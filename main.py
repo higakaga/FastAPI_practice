@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Union, List
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Path
 from pydantic import BaseModel
 
 class ModelName(str. Enum):
@@ -85,6 +85,36 @@ async def read_user_item(
     item = {"item_id": item_id, "needy": needy, "skip": skip, "limit": limit}
     return item
 '''
+'''
+async def read_items(
+        item_id: int = Path(title="The ID of the item to get"),
+        q: Union[str, None] = Query(default=None, alias="item-query"),
+):
+    results = {"item_id": item_id}
+    if q:
+        results.update({"q": q})
+    return results
+
+async def read_items(
+        q: str, item_id: int = Path(title="The ID of the item to get")
+):
+    results = {"item_id": item_id}
+    if q:
+        results.update({"q": q})
+    return results
+'''
+async def read_items(
+        *,
+        item_id: int = Path(title="The ID of the item to get", ge=1, gt=0, le=1000),
+        q: str,
+        size: float = Query(gt=0, lt=10.5),
+):
+    results = {"item_id": item_id}
+    if q:
+        results.update({"q": q})
+    if size:
+        results.update({"size": size})
+    return results
 
 @app.get("/users/me")
 async def read_user_me():
