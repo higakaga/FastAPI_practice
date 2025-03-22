@@ -11,9 +11,11 @@ class ModelName(str, Enum):
 
 class Item(BaseModel):
     name: str
-    description: Union[str, None] = None
-    price: float
-    tax: Union[float, None] = None
+    description: str | None = Field(
+        default=None, title="The description of the item", max_length=300
+    )
+    price: float = Field(gt=0, description="The price must be greater than zero")
+    tax: float | None = None
 
 class User(BaseModel):
     username: str
