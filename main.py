@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Union, List, Annotated, Literal, Set, Dict
 from datetime import datetime, time, timedelta
 from uuid import UUID
-from fastapi import FastAPI, Query, Path, Body
+from fastapi import FastAPI, Query, Path, Body, Cookie
 from pydantic import BaseModel, Field, HttpUrl
 
 class ModelName(str, Enum):
@@ -72,19 +72,19 @@ async def root():
 # async def read_item(skip: int = 0, limit: int = 10):
 #     return fake_items_db[skip : skip + limit]
 
-async def read_items(
-        q: Union[str, None] = Query(
-            default=None, min_length=3, max_length=50, pattern="^fixedquery$",
-            title="Query string",
-            description="Query string for the items to search in the database that have a good match",
-            alias="item-query",
-            deprecated=True,
-            ),
-        ):
-    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
-    if q:
-        results.update({"q": q})
-    return results
+# async def read_items(
+#         q: Union[str, None] = Query(
+#             default=None, min_length=3, max_length=50, pattern="^fixedquery$",
+#             title="Query string",
+#             description="Query string for the items to search in the database that have a good match",
+#             alias="item-query",
+#             deprecated=True,
+#             ),
+#         ):
+#     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+#     if q:
+#         results.update({"q": q})
+#     return results
 
 # async def read_items(q: str = Query(min_length=3)):
 #     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
@@ -104,9 +104,11 @@ async def read_items(
 #     query_items = {"q": q}
 #     return query_items
 
-async def read_items(filter_query: Annotated[FilterParams, Query()]):
-    return filter_query
+# async def read_items(filter_query: Annotated[FilterParams, Query()]):
+#     return filter_query
 
+async def read_items(ads_id: Annotated[str | None, Cookie()] = None):
+    return {"ads_id": ads_id}
 
 @app.get("/items/{item_id}")
 # async def read_item(item_id: str, q: Union[str, None] = None):
