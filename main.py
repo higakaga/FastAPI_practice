@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Union, List, Annotated, Literal, Set, Dict
 from datetime import datetime, time, timedelta
 from uuid import UUID
-from fastapi import FastAPI, Query, Path, Body, Cookie
+from fastapi import FastAPI, Query, Path, Body, Cookie, Header
 from pydantic import BaseModel, Field, HttpUrl
 
 class ModelName(str, Enum):
@@ -107,8 +107,18 @@ async def root():
 # async def read_items(filter_query: Annotated[FilterParams, Query()]):
 #     return filter_query
 
-async def read_items(ads_id: Annotated[str | None, Cookie()] = None):
-    return {"ads_id": ads_id}
+# async def read_items(ads_id: Annotated[str | None, Cookie()] = None):
+#     return {"ads_id": ads_id}
+
+# async def read_items(user_agent: Union[str, None] = Header(default=None)):
+#     return {"User-Agent": user_agent}
+
+# async def read_items(
+#         strange_header: Union[str, None] = Header(default=None, convert_underscores=False),):
+#     return {"strange_header": strange_header}
+
+async def read_items(x_token: Union[List[str], None] = Header(default=None)):
+    return {"X-Token values": x_token}
 
 @app.get("/items/{item_id}")
 # async def read_item(item_id: str, q: Union[str, None] = None):
