@@ -14,15 +14,32 @@ class Image(BaseModel):
     name: str
 
 class Item(BaseModel):
-    name: str
+    name: str = Field(examples=["Foo"])
     description: str | None = Field(
-        default=None, title="The description of the item", max_length=300
+        default=None, examples=["A very nice Item"]
+        # title="The description of the item", max_length=300
     )
-    price: float = Field(gt=0, description="The price must be greater than zero")
-    tax: float | None = None
+    price: float = Field(
+        examples=[35.4]
+        # gt=0, description="The price must be greater than zero"
+        )
+    tax: float | None = Field(default=None, examples=[3.2])
     # tags: List[str] = []
-    tags: Set[str] = set()
-    image: Union[List[Image], None] = None
+    # tags: Set[str] = set()
+    # image: Union[List[Image], None] = None
+
+    '''model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "name": "Foo",
+                    "description": "A very nice Item",
+                    "price": 35.4,
+                    "tax": 3.2,
+                }
+            ]
+        }
+    }'''
 
 class Offer(BaseModel):
     name: str
