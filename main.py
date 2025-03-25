@@ -1,13 +1,17 @@
 from enum import Enum
-from typing import Union, List, Annotated, Literal
+from typing import Union, List, Annotated, Literal, Set, Dict
 
 from fastapi import FastAPI, Query, Path, Body
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl
 
 class ModelName(str, Enum):
     alexnet = "alexnet"
     resnet = "resnet"
     lenet = "lenet"
+
+class Image(BaseModel):
+    url: HttpUrl
+    name: str
 
 class Item(BaseModel):
     name: str
@@ -16,6 +20,15 @@ class Item(BaseModel):
     )
     price: float = Field(gt=0, description="The price must be greater than zero")
     tax: float | None = None
+    # tags: List[str] = []
+    tags: Set[str] = set()
+    image: Union[List[Image], None] = None
+
+class Offer(BaseModel):
+    name: str
+    description: Union[str, None] = None
+    price: float
+    items: List[Item]
 
 class User(BaseModel):
     username: str
@@ -177,19 +190,31 @@ async def create_item(item: Item):
     return item_dict
 
 @app.put("/items/{item_id}")
-async def update_item(
-    *,
-    item_id: int = Path(title="The ID of the item to get", ge=0, le=1000),
-    item: Item,
-    user: User,
-    importance: int = Body(gt=0),
-    q: Union[str, None] = None,
-    ):
-    results = {"item_id": item_id, "item": item, "user": user, "importance": importance}
-    if q:
-        results.update({"q": q})
+# async def update_item(
+#     *,
+#     item_id: int = Path(title="The ID of the item to get", ge=0, le=1000),
+#     item: Item,
+#     user: User,
+#     importance: int = Body(gt=0),
+#     q: Union[str, None] = None,
+#     ):
+#     results = {"item_id": item_id, "item": item, "user": user, "importance": importance}
+#     if q:
+#         results.update({"q": q})
+#     return results
+
+async def update_item(item_id: int, item: Item = Body(embed=True)):
+    results = {"item_id": item_id, "item": item}
     return results
 
-# async def update_item(item_id: int, item: Item = Body(embed=True)):
-#     results = {"item_id": item_id, "item": item}
-#     return results
+@app.post("/offers/")
+async def create_offer(offer: Offer):
+    return offer
+
+@app.post("/images/multiple/")
+async def create_multiple_images(images: List[Image]):
+    return images
+
+@app.post("/index-weights/")
+async def create_index_weights(weights: Dict[int, float]):
+    return weights
