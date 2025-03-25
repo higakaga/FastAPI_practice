@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Union, List, Annotated, Literal, Set, Dict
-
+from datetime import datetime, time, timedelta
+from uuid import UUID
 from fastapi import FastAPI, Query, Path, Body
 from pydantic import BaseModel, Field, HttpUrl
 
@@ -68,8 +69,8 @@ async def root():
     return {"message": "Hello World"}
 
 @app.get("/items/")
-async def read_item(skip: int = 0, limit: int = 10):
-    return fake_items_db[skip : skip + limit]
+# async def read_item(skip: int = 0, limit: int = 10):
+#     return fake_items_db[skip : skip + limit]
 
 async def read_items(
         q: Union[str, None] = Query(
@@ -84,25 +85,25 @@ async def read_items(
     if q:
         results.update({"q": q})
     return results
-'''
-async def read_items(q: str = Query(min_length=3)):
-    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
-    if q:
-        results.update({"q": q})
-    return results
 
-async def read_items(q: Union[List[str], None] = Query(default=None)):
-    query_items = {"q": q}
-    return query_items
+# async def read_items(q: str = Query(min_length=3)):
+#     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+#     if q:
+#         results.update({"q": q})
+#     return results
 
-async def read_items(q: List[str] = Query(default=["foo", "bar"])):
-    query_items = {"q": q}
-    return query_items
+# async def read_items(q: Union[List[str], None] = Query(default=None)):
+#     query_items = {"q": q}
+#     return query_items
 
-async def read_items(q: list = Query(default=[])):
-    query_items = {"q": q}
-    return query_items
-'''
+# async def read_items(q: List[str] = Query(default=["foo", "bar"])):
+#     query_items = {"q": q}
+#     return query_items
+
+# async def read_items(q: list = Query(default=[])):
+#     query_items = {"q": q}
+#     return query_items
+
 async def read_items(filter_query: Annotated[FilterParams, Query()]):
     return filter_query
 
@@ -223,6 +224,25 @@ async def create_item(item: Item):
 async def update_item(item_id: int, item: Item = Body(embed=True)):
     results = {"item_id": item_id, "item": item}
     return results
+
+async def read_items(
+    item_id: UUID,
+    start_datetime: Annotated[datetime, Body()],
+    end_datetime: Annotated[datetime, Body()],
+    process_after: Annotated[timedelta, Body()],
+    repeat_at: Annotated[time | None, Body()] = None,
+):
+    start_process = start_datetime + process_after
+    duration = end_datetime - start_process
+    return {
+        "item_id": item_id,
+        "start_datetime": start_datetime,
+        "end_datetime": end_datetime,
+        "process_after": process_after,
+        "repeat_at": repeat_at,
+        "start_process": start_process,
+        "duration": duration,
+    }
 
 @app.post("/offers/")
 async def create_offer(offer: Offer):
